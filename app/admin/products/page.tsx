@@ -1,9 +1,19 @@
-import { getServerSession } from 'next-auth/next';
-import { PrismaClient } from '@prisma/client';
-import { authOptions } from '../../api/auth/[...nextauth]/route';
-import Link from 'next/link';
-import { Button } from '@/components/ui/button';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+export const dynamic = "force-dynamic";
+
+import { getServerSession } from "next-auth/next";
+import { PrismaClient } from "@prisma/client";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { AuthOptions, Session } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
 const prisma = new PrismaClient();
 
@@ -12,9 +22,10 @@ async function getProducts() {
 }
 
 export default async function AdminProductsPage() {
-  const session = await getServerSession(authOptions);
+  const session = await getServerSession(authOptions as AuthOptions);
 
-  if (!session || session.user.role !== 'ADMIN') {
+  if (!session || session?.user?.role !== "ADMIN") {
+    console.log(session);
     return <div>Unauthorized</div>;
   }
 
@@ -43,7 +54,9 @@ export default async function AdminProductsPage() {
               <TableCell>{product.stock}</TableCell>
               <TableCell>
                 <Link href={`/admin/products/${product.id}`}>
-                  <Button variant="outline" className="mr-2">Edit</Button>
+                  <Button variant="outline" className="mr-2">
+                    Edit
+                  </Button>
                 </Link>
                 <Button variant="destructive">Delete</Button>
               </TableCell>

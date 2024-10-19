@@ -1,13 +1,30 @@
 "use client";
 
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+
+interface CartItem {
+  product: { id: string; name: string; price: number };
+  quantity: number;
+}
+
+interface Cart {
+  items: CartItem[];
+  total: number;
+}
 
 export default function CartPage() {
-  const [cart, setCart] = useState({ items: [] });
+  const [cart, setCart] = useState<Cart>({ items: [], total: 0 });
   const router = useRouter();
 
   useEffect(() => {
@@ -15,17 +32,17 @@ export default function CartPage() {
   }, []);
 
   const fetchCart = async () => {
-    const response = await fetch('/api/cart');
+    const response = await fetch("/api/cart");
     if (response.ok) {
       const data = await response.json();
       setCart(data);
     }
   };
 
-  const updateQuantity = async (productId, newQuantity) => {
-    const response = await fetch('/api/cart', {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+  const updateQuantity = async (productId: string, newQuantity: number) => {
+    const response = await fetch("/api/cart", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ productId, quantity: newQuantity }),
     });
 
@@ -34,10 +51,10 @@ export default function CartPage() {
     }
   };
 
-  const removeItem = async (productId) => {
-    const response = await fetch('/api/cart', {
-      method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
+  const removeItem = async (productId: string) => {
+    const response = await fetch("/api/cart", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ productId }),
     });
 
@@ -47,7 +64,7 @@ export default function CartPage() {
   };
 
   const proceedToCheckout = () => {
-    router.push('/checkout');
+    router.push("/checkout");
   };
 
   return (
@@ -68,7 +85,7 @@ export default function CartPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {cart.items.map((item) => (
+              {cart.items.map((item: any) => (
                 <TableRow key={item.product.id}>
                   <TableCell>{item.product.name}</TableCell>
                   <TableCell>${item.product.price.toFixed(2)}</TableCell>
@@ -77,20 +94,34 @@ export default function CartPage() {
                       type="number"
                       min="1"
                       value={item.quantity}
-                      onChange={(e) => updateQuantity(item.product.id, parseInt(e.target.value))}
+                      onChange={(e) =>
+                        updateQuantity(
+                          item.product.id,
+                          parseInt(e.target.value)
+                        )
+                      }
                       className="w-16 p-1 border rounded"
                     />
                   </TableCell>
-                  <TableCell>${(item.quantity * item.product.price).toFixed(2)}</TableCell>
                   <TableCell>
-                    <Button variant="destructive" onClick={() => removeItem(item.product.id)}>Remove</Button>
+                    ${(item.quantity * item.product.price).toFixed(2)}
+                  </TableCell>
+                  <TableCell>
+                    <Button
+                      variant="destructive"
+                      onClick={() => removeItem(item.product.id)}
+                    >
+                      Remove
+                    </Button>
                   </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
           <div className="mt-8 flex justify-between items-center">
-            <p className="text-xl font-semibold">Total: ${cart.total?.toFixed(2)}</p>
+            <p className="text-xl font-semibold">
+              Total: ${cart.total.toFixed(2)}
+            </p>
             <Button onClick={proceedToCheckout}>Proceed to Checkout</Button>
           </div>
         </>
